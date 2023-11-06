@@ -1,32 +1,57 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import create_engine
 from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
+class User(Base):
+    __tablename__ = 'user'
     # Here we define columns for the table person
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    user_name = Column(String(250), nullable=False)
+    first_name=Column(String(250),nullable=False)
+    last_name =Column(String(250))
+    email= Column(String(250) ,nullable=False)
+    password=Column(String(250), nullable=False)
 
-class Address(Base):
-    __tablename__ = 'address'
+    following = relationship('Follower',back_populates = "user")
+
+
+class Follower(Base):
+    __tablename__= 'follower'
+    id = Column(Integer, primary_key=True)
+    follower_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+
+    user = relationship(User, back_populates="following")
+
+class Post(Base):
+    __tablename__ = 'post'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
-    def to_dict(self):
-        return {}
+
+
+class Media(Base):
+    __tablename__= ' media'
+    id = Column(Integer, primary_key=True)
+    media_url = Column (String(255))
+    caption = Column (String(500))
+    timestamp = Column(DateTime)
+    user_id = Column(Integer, ForeignKey('user.id'))
+
+    user = relationship(User, back_populates="media")
+    
+    
+
+
 
 ## Draw from SQLAlchemy base
 try:
